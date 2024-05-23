@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, ParseFilePipe, ParseFilePipeBuilder, HttpStatus, UseGuards, FileTypeValidator, Res, StreamableFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, ParseFilePipe, ParseFilePipeBuilder, HttpStatus, UseGuards, FileTypeValidator, Res, StreamableFile, BadRequestException, Req } from '@nestjs/common';
 import { PetService } from './pet.service';
 import { CreatePetDto } from './dto/create-pet.dto';
 import { UpdatePetDto } from './dto/update-pet.dto';
@@ -38,6 +38,9 @@ export class PetController {
   @Get('photo/:id')
   public async getPetPhoto(@Res({passthrough: true}) res: Response, @Param("id") id: string): Promise<StreamableFile>{
     const pet = await this.petService.getPet(id);
+    if(!pet){
+      throw new BadRequestException("La imagen buscada está asociada a una mascota inexistente");
+    }
     // console.log(pet);
     const savePath = this.configService.getOrThrow("UPLOADS_DIR", "./uploads");
     const file = createReadStream(join(savePath, pet.Foto));
@@ -48,6 +51,14 @@ export class PetController {
       'Content-Disposition': `attachment; filename="${pet.Foto}"`
     })
     return new StreamableFile(file);
+  }
+
+
+  @Patch('favorite')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.User)
+  public async addToFavorites(@Body() request: {pet: number}, @Req() req){
+    return this.petService.addPetToFavorites(request.pet, req);
   }
 
 }

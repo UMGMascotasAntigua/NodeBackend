@@ -1,5 +1,6 @@
 import { Clasificacion } from 'src/modules/clasification/entities/clasification.entity';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import { Favoritos } from './favorite.entity';
 // import { Clasificacion } from './Clasificacion'; // Asegúrate de importar tu entidad Clasificacion
 // import { VacunaDet } from './VacunaDet'; // Asegúrate de importar tu entidad VacunaDet
 // import { Castracion } from './Castracion'; // Asegúrate de importar tu entidad Castracion
@@ -35,6 +36,9 @@ export class Mascotas {
   @ManyToOne(() => Clasificacion, clasificacion => clasificacion.Mascotas)
   @JoinColumn({name: 'Clasificacion'})
   ClasificacionNav: Clasificacion;
+
+  @OneToMany(() => Favoritos, favoritos => favoritos.Mascota)
+  Favoritos: Favoritos[];
 
 //   @OneToMany(() => VacunaDet, vacunaDet => vacunaDet.mascota)
 //   VacunasDet: VacunaDet[];

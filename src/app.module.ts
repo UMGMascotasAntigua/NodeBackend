@@ -11,6 +11,8 @@ import { Mascotas } from './modules/pet/entities/pet.entity';
 import { Clasificacion } from './modules/clasification/entities/clasification.entity';
 import { ProfileModule } from './modules/profile/profile.module';
 import { Perfil } from './modules/profile/profile.entity';
+import { VaccineModule } from './modules/vaccine/vaccine.module';
+import { Favoritos } from './modules/pet/entities/favorite.entity';
 
 @Module({
   imports: [
@@ -40,7 +42,8 @@ import { Perfil } from './modules/profile/profile.entity';
           Perfil,
           Usuarios,
           Clasificacion,
-          Mascotas
+          Mascotas,
+          Favoritos
         ]
       }),
       inject: [ConfigService]
@@ -48,7 +51,8 @@ import { Perfil } from './modules/profile/profile.entity';
     ClasificationModule,
     PetModule,
     AuthModule,
-    ProfileModule
+    ProfileModule,
+    VaccineModule
   ],
 })
 export class AppModule {}
