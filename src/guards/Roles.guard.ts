@@ -1,7 +1,6 @@
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { AuthService } from "src/modules/auth/auth.service";
-import { ProfileService } from "src/modules/profile/profile.service";
 import { Role } from "src/utils/rbac/role.enum";
 import { ROLES_KEY } from "src/utils/rbac/roles.decorator";
 

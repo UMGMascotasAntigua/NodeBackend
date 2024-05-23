@@ -11,6 +11,16 @@ export class PetService {
 
   constructor(@InjectRepository(Mascotas) private readonly petRepository: Repository<Mascotas>){}
 
+  public async getPet(id: any): Promise<Mascotas>{
+    const find = await this.petRepository.findOne({
+      where: {
+        Codigo_Mascota: id
+      }
+    });
+
+    return await find;
+  }
+
   public async create(createPetDto: CreatePetDto, file: Express.Multer.File): Promise<ApiResponse<Mascotas>> {
     try{
       const creation = await this.petRepository.create();
