@@ -14,9 +14,10 @@ import { Perfil } from '../profile/profile.entity';
 import { Usuarios } from '../auth/user.model';
 import { AuthService } from '../auth/auth.service';
 import { Favoritos } from './entities/favorite.entity';
+import { Vacunas } from '../vaccine/entities/vaccine.entity';
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Mascotas, Perfil, Usuarios, Favoritos]),
+    TypeOrmModule.forFeature([Mascotas, Perfil, Usuarios, Favoritos, Vacunas]),
     MulterModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async(cfg: ConfigService) => ({

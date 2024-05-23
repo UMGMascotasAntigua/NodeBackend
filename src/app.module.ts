@@ -13,6 +13,7 @@ import { ProfileModule } from './modules/profile/profile.module';
 import { Perfil } from './modules/profile/profile.entity';
 import { VaccineModule } from './modules/vaccine/vaccine.module';
 import { Favoritos } from './modules/pet/entities/favorite.entity';
+import { Vacunas } from './modules/vaccine/entities/vaccine.entity';
 
 @Module({
   imports: [
@@ -43,7 +44,8 @@ import { Favoritos } from './modules/pet/entities/favorite.entity';
           Usuarios,
           Clasificacion,
           Mascotas,
-          Favoritos
+          Favoritos,
+          Vacunas
         ]
       }),
       inject: [ConfigService]

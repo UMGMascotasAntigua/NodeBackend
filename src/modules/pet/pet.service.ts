@@ -7,12 +7,14 @@ import { Repository } from 'typeorm';
 import { ApiResponse } from 'src/utils/ApiResponse';
 import { Usuarios } from '../auth/user.model';
 import { Favoritos } from './entities/favorite.entity';
+import { Vacunas } from '../vaccine/entities/vaccine.entity';
 
 @Injectable()
 export class PetService {
 
   constructor(@InjectRepository(Mascotas) private readonly petRepository: Repository<Mascotas>,
-  @InjectRepository(Favoritos) private readonly favoriteRepository: Repository<Favoritos>){}
+  @InjectRepository(Favoritos) private readonly favoriteRepository: Repository<Favoritos>,
+  @InjectRepository(Vacunas) private readonly vaccineRepository: Repository<Vacunas>){}
 
   public async getPet(id: any): Promise<Mascotas>{
     const find = await this.petRepository.findOne({
@@ -71,6 +73,18 @@ export class PetService {
       }
     }catch(err){
       return new ApiResponse(false, "Error al agregar a favoritos" + err, null)
+    }
+  }
+
+  public async getPetVaccines(){
+    try{
+      // const find = await this.vaccineRepository.find({
+      //   where: {
+
+      //   }
+      // })
+    }catch(err){
+      return new ApiResponse(false, "Error al obtener las vacunas de la mascota" + err, null)
     }
   }
 }

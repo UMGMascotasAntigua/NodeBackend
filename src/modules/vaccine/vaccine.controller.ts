@@ -16,19 +16,4 @@ export class VaccineController {
   findAll() {
     return this.vaccineService.findAll();
   }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.vaccineService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateVaccineDto: UpdateVaccineDto) {
-    return this.vaccineService.update(+id, updateVaccineDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.vaccineService.remove(+id);
-  }
 }
