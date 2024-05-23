@@ -14,6 +14,7 @@ import { Perfil } from './modules/profile/profile.entity';
 import { VaccineModule } from './modules/vaccine/vaccine.module';
 import { Favoritos } from './modules/pet/entities/favorite.entity';
 import { Vacunas } from './modules/vaccine/entities/vaccine.entity';
+import { Vacunas_Det } from './modules/vaccine/entities/vaccine.det.entity';
 
 @Module({
   imports: [
@@ -45,7 +46,8 @@ import { Vacunas } from './modules/vaccine/entities/vaccine.entity';
           Clasificacion,
           Mascotas,
           Favoritos,
-          Vacunas
+          Vacunas,
+          Vacunas_Det
         ]
       }),
       inject: [ConfigService]

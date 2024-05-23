@@ -11,11 +11,15 @@ import { createReadStream } from 'fs';
 import { join } from 'path';
 import type { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
+import { VaccineService } from '../vaccine/vaccine.service';
+import { ApplyVaccineDto } from './dto/apply-vaccine.dto';
 
 
 @Controller('pet')
 export class PetController {
-  constructor(private readonly petService: PetService, private readonly configService: ConfigService) {}
+  constructor(private readonly petService: PetService, private readonly configService: ConfigService,
+    private readonly vaccineService: VaccineService
+  ) {}
 
   @Post()
   @UseGuards(AuthGuard, RolesGuard)
@@ -59,6 +63,16 @@ export class PetController {
   @Roles(Role.User)
   public async addToFavorites(@Body() request: {pet: number}, @Req() req){
     return this.petService.addPetToFavorites(request.pet, req);
+  }
+
+  @Patch('vaccines/apply')
+  public async applyVaccineToPet(@Body() request: ApplyVaccineDto){
+    return this.vaccineService.applyToPet(request.pet, request.vaccine, new Date(request.date));
+  }
+
+  @Get('vaccines/:id')
+  public async getPetVaccines(@Param("id") id: number){
+    return this.vaccineService.getPetVaccines(id);
   }
 
 }

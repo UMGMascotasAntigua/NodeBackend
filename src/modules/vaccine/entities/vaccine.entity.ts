@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Vacunas_Det } from "./vaccine.det.entity";
 
 @Entity()
 export class Vacunas {
@@ -10,5 +11,8 @@ export class Vacunas {
 
     @Column()
     Comentarios: string;
+
+    @OneToMany(() => Vacunas_Det, vacunasDet => vacunasDet.Vacuna)
+    Vacunas_Det: Vacunas_Det[];
 }
 

@@ -15,9 +15,11 @@ import { Usuarios } from '../auth/user.model';
 import { AuthService } from '../auth/auth.service';
 import { Favoritos } from './entities/favorite.entity';
 import { Vacunas } from '../vaccine/entities/vaccine.entity';
+import { Vacunas_Det } from '../vaccine/entities/vaccine.det.entity';
+import { VaccineService } from '../vaccine/vaccine.service';
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Mascotas, Perfil, Usuarios, Favoritos, Vacunas]),
+    TypeOrmModule.forFeature([Mascotas, Perfil, Usuarios, Favoritos, Vacunas, Vacunas_Det]),
     MulterModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async(cfg: ConfigService) => ({
@@ -39,6 +41,6 @@ import { Vacunas } from '../vaccine/entities/vaccine.entity';
     })
   ],
   controllers: [PetController],
-  providers: [PetService, JwtService, AuthService],
+  providers: [PetService, JwtService, AuthService, VaccineService],
 })
 export class PetModule {}
