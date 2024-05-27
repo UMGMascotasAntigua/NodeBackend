@@ -17,6 +17,8 @@ import { Vacunas } from './modules/vaccine/entities/vaccine.entity';
 import { Vacunas_Det } from './modules/vaccine/entities/vaccine.det.entity';
 import { CastrationModule } from './modules/castration/castration.module';
 import { Castracion } from './modules/castration/castration.entity';
+import { Citas_Enc } from './modules/pet/entities/citas_enc.entity';
+import { Citas_Det } from './modules/pet/entities/citas_det.entity';
 
 @Module({
   imports: [
@@ -29,11 +31,12 @@ import { Castracion } from './modules/castration/castration.entity';
       imports: [ConfigModule],
       useFactory: async(cfg: ConfigService) => ({
         type: 'mssql',
-        host: cfg.getOrThrow<string>("DB_HOST", "localhost"),
-        port: cfg.getOrThrow<number>("DB_PORT", 1433),
-        username: cfg.getOrThrow<string>("DB_USER", "developer"),
-        password: cfg.getOrThrow<string>("DB_PWD", "developer"),
-        database: cfg.getOrThrow<string>("DB_NAME", "MASCOTAS"),
+        host: cfg.get<string>("DB_HOST"),
+        port: cfg.get<number>("DB_PORT"),
+        username: cfg.get<string>("DB_USER"),
+        password: cfg.get<string>("DB_PWD"),
+        database: cfg.getOrThrow<string>("DB_NAME"),
+        synchronize: true,
         extra: {
           trustServerCertificate: true,
           trustedConnection: true,
@@ -41,6 +44,10 @@ import { Castracion } from './modules/castration/castration.entity';
           options: {
             instanceName: "SQLEXPRESS"
           }
+        },
+        options: {
+          instanceName: "SQLEXPRESS",
+          useUTC: true
         },
         entities: [
           Perfil,
@@ -50,7 +57,9 @@ import { Castracion } from './modules/castration/castration.entity';
           Favoritos,
           Vacunas,
           Vacunas_Det,
-          Castracion
+          Castracion,
+          Citas_Enc,
+          Citas_Det
         ]
       }),
       inject: [ConfigService]

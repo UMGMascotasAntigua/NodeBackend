@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
 import { Perfil } from '../profile/profile.entity';
 import { Favoritos } from '../pet/entities/favorite.entity';
+import { Citas_Enc } from '../pet/entities/citas_enc.entity';
 // import { Perfil } from './Perfil';
 // import { Favorito } from './Favorito';
 // import { CitaEnc } from './CitaEnc';
@@ -35,6 +36,8 @@ export class Usuarios {
   @OneToMany(() => Favoritos, favorito => favorito.Usuario)
   Favoritos: Favoritos[];
 
+  @OneToMany(() => Citas_Enc, citasEnc => citasEnc.Usuario)
+  Citas_Enc: Citas_Enc[];
 //   @OneToMany(() => CitaEnc, citaEnc => citaEnc.usuario)
 //   CitasEnc: CitaEnc[];
 }

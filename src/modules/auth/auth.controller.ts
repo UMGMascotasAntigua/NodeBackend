@@ -1,14 +1,24 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
 import { LoginDto } from './dto/login.dto';
 import { ApiResponse } from 'src/utils/ApiResponse';
 import { RegisterDto } from './dto/register.dto';
+import { AuthGuard } from 'src/guards/Auth.guard';
+import { RolesGuard } from 'src/guards/Roles.guard';
+import { Roles } from 'src/utils/rbac/roles.decorator';
+import { Role } from 'src/utils/rbac/role.enum';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Get('profile')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Administrator, Role.User)
+  public async getProfile(@Req() req:any){
+    return await this.authService.getProfileUser(req.user)
+  }
+
 
   @Post('login')
   public Login(@Body() request: LoginDto){

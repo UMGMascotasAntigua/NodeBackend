@@ -1,9 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Mascotas } from '../pet/entities/pet.entity';
 
-@Entity('CASTRACION')
+@Entity()
 export class Castracion {
-  @PrimaryGeneratedColumn({ name: 'CODIGO_CASTRACION' })
+  @PrimaryGeneratedColumn()
   Codigo_Castracion: number;
 
   @Column()

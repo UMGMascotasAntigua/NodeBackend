@@ -9,6 +9,7 @@ import { Equal, Or, Repository } from 'typeorm';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
+import { Perfil } from '../profile/profile.entity';
 
 @Injectable()
 export class AuthService {
@@ -16,8 +17,19 @@ export class AuthService {
   constructor(
     @InjectRepository(Usuarios)
     private userRepository: Repository<Usuarios>,
+    @InjectRepository(Perfil)
+    private profileRepository: Repository<Perfil>,
     private jwtService: JwtService){}
 
+
+    public async getProfileUser(user: any){
+      const query = await this.userRepository.createQueryBuilder('usuario')
+      .select(["usuario.Usuario", "perfil.Descripcion"])
+      .innerJoin('usuario.Perfil', 'perfil')
+      .where("usuario.Codigo_Usuario = :user", {user: user.sub})
+
+      return await query.getOne();
+    }
 
     public async getUserLevel(user: any){
       const find = await this.userRepository.findOne({

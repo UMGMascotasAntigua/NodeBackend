@@ -10,6 +10,8 @@ import { Favoritos } from './entities/favorite.entity';
 import { Vacunas } from '../vaccine/entities/vaccine.entity';
 import { AddCastrationDto } from './dto/add-castration.dto';
 import { Castracion } from '../castration/castration.entity';
+import { FiltersDto } from './dto/find-filters.dto';
+import { Clasificacion } from '../clasification/entities/clasification.entity';
 
 @Injectable()
 export class PetService {
@@ -17,7 +19,8 @@ export class PetService {
   constructor(@InjectRepository(Mascotas) private readonly petRepository: Repository<Mascotas>,
   @InjectRepository(Favoritos) private readonly favoriteRepository: Repository<Favoritos>,
   @InjectRepository(Vacunas) private readonly vaccineRepository: Repository<Vacunas>,
-  @InjectRepository(Castracion) private readonly castrationRepository: Repository<Castracion>){}
+  @InjectRepository(Castracion) private readonly castrationRepository: Repository<Castracion>,
+  @InjectRepository(Clasificacion) private readonly clasificationRepository: Repository<Clasificacion>){}
 
   public async getPet(id: any): Promise<Mascotas>{
     const find = await this.petRepository.findOne({
@@ -38,7 +41,12 @@ export class PetService {
       creation.Foto = file.filename;
       creation.Comentarios = createPetDto.comments;
       creation.Edad = createPetDto.age;
-      creation.Estado = createPetDto.state;
+      creation.Estado = "Disponible";
+      creation.Clasificacion = await this.clasificationRepository.findOne({
+        where: {
+          Codigo_Clasificacion: Number(createPetDto.clasification)
+        }
+      }) ?? null;
     
       await this.petRepository.save(creation);
       return new ApiResponse(true, "Mascota agregada!", creation);
@@ -129,6 +137,43 @@ export class PetService {
       // })
     }catch(err){
       return new ApiResponse(false, "Error al obtener las vacunas de la mascota" + err, null)
+    }
+  }
+
+  public async findWithFilters(request: FiltersDto){
+    try{
+      const queryBuilder = await this.petRepository.createQueryBuilder('mascota');
+
+      let paramIndex = 0;
+    request.filters.forEach(filter => {
+      var {field, operator, value} = filter;
+      field = field.toUpperCase();
+
+      const parameterName = `${field.toLowerCase()}${paramIndex++}`;
+
+      if (field === 'EDAD') {
+        if (operator && value) {
+            queryBuilder.andWhere(`mascota.${field} ${operator} :${parameterName}`, { [parameterName]: Number(value) });
+        } else {
+            queryBuilder.andWhere(`mascota.${field} = :${parameterName}`, { [parameterName]: Number(value) });
+        }
+    } else if (field === 'ESTADO') {
+        queryBuilder.andWhere(`mascota.${field} = :${parameterName}`, { [parameterName]: value });
+    } else if (field === 'RAZA') {
+        value = value.trim();
+        queryBuilder.andWhere(`mascota.${field} LIKE :${parameterName}`, { [parameterName]: `%${value.toLowerCase()}%` });
+    } else if (field === 'CLASIFICACION') {
+        queryBuilder.innerJoin('mascota.Clasificacion', 'clasificacion');
+        queryBuilder.andWhere(`clasificacion.Descripcion LIKE :${parameterName}`, { [parameterName]: `%${value.toLowerCase()}%` });
+    }
+    })
+    const result =  await queryBuilder.getMany();
+    // console.log(queryBuilder.getSql())
+    // console.log(queryBuilder.getQueryAndParameters());
+    return new ApiResponse(true, "Mascotas filtradas", result);
+    }catch(err){
+      console.log(err);
+      return new ApiResponse(false, "Error al filtrar las mascotas", null)
     }
   }
 }

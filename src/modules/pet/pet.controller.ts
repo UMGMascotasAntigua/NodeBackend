@@ -14,6 +14,8 @@ import { ConfigService } from '@nestjs/config';
 import { VaccineService } from '../vaccine/vaccine.service';
 import { ApplyVaccineDto } from './dto/apply-vaccine.dto';
 import { AddCastrationDto } from './dto/add-castration.dto';
+import { AdoptPetDto } from './dto/adopt-pet.dto';
+import { FilterDto, FiltersDto } from './dto/find-filters.dto';
 
 
 @Controller('pet')
@@ -69,11 +71,8 @@ export class PetController {
           'Content-Disposition': `attachment; filename="notfound.jpg"`
         })
         return new StreamableFile(file);
-      }
-      
+      } 
     }
-    // console.log(pet);
-    
   }
 
 
@@ -91,6 +90,16 @@ export class PetController {
   @Patch('castration/add')
   public async addCastration(@Body() request: AddCastrationDto){
     return this.petService.addCastration(request);
+  }
+
+  @Post('adopt')
+  public async adoptPet(@Body() request: AdoptPetDto){
+    
+  }
+
+  @Post('filter')
+  public async findWithFilters(@Body() filters: FiltersDto){
+    return await this.petService.findWithFilters(filters);
   }
 
   @Get('vaccines/:id')

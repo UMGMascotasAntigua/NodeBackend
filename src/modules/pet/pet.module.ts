@@ -18,9 +18,12 @@ import { Vacunas } from '../vaccine/entities/vaccine.entity';
 import { Vacunas_Det } from '../vaccine/entities/vaccine.det.entity';
 import { VaccineService } from '../vaccine/vaccine.service';
 import { Castracion } from '../castration/castration.entity';
+import { Citas_Enc } from './entities/citas_enc.entity';
+import { Citas_Det } from './entities/citas_det.entity';
+import { Clasificacion } from '../clasification/entities/clasification.entity';
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Mascotas, Perfil, Usuarios, Favoritos, Vacunas, Vacunas_Det, Castracion]),
+    TypeOrmModule.forFeature([Mascotas, Perfil, Usuarios, Favoritos, Vacunas, Clasificacion, Vacunas_Det, Castracion, Citas_Enc, Citas_Det]),
     MulterModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async(cfg: ConfigService) => ({

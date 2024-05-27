@@ -9,6 +9,6 @@ export class Clasificacion {
   @Column()
   Descripcion: string;
 
-  @OneToMany(() => Mascotas, mascota => mascota.ClasificacionNav)
+  @OneToMany(() => Mascotas, mascota => mascota.Clasificacion)
   Mascotas: Mascotas[];
 }

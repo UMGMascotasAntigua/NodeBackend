@@ -2,6 +2,8 @@ import { Clasificacion } from 'src/modules/clasification/entities/clasification.
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { Favoritos } from './favorite.entity';
 import { Castracion } from 'src/modules/castration/castration.entity';
+import { Vacunas_Det } from 'src/modules/vaccine/entities/vaccine.det.entity';
+import { Citas_Enc } from './citas_enc.entity';
 @Entity()
 export class Mascotas {
   @PrimaryGeneratedColumn()
@@ -30,7 +32,7 @@ export class Mascotas {
 
   @ManyToOne(() => Clasificacion, clasificacion => clasificacion.Mascotas)
   @JoinColumn({name: 'Clasificacion'})
-  ClasificacionNav: Clasificacion;
+  Clasificacion: Clasificacion;
 
   @OneToMany(() => Favoritos, favoritos => favoritos.Mascota)
   Favoritos: Favoritos[];
@@ -38,15 +40,9 @@ export class Mascotas {
   @OneToMany(() => Castracion, castracion => castracion.Mascota)
   Castraciones: Castracion[];
 
-//   @OneToMany(() => VacunaDet, vacunaDet => vacunaDet.mascota)
-//   VacunasDet: VacunaDet[];
+  @OneToMany(() => Vacunas_Det, vacunasDet => vacunasDet.Mascota)
+  Vacunas_Det: Vacunas_Det[];
 
-//   @OneToMany(() => Castracion, castracion => castracion.mascota)
-//   Castraciones: Castracion[];
-
-//   @OneToMany(() => Favorito, favorito => favorito.mascota)
-//   Favoritos: Favorito[];
-
-//   @OneToMany(() => CitaDet, citaDet => citaDet.mascota)
-//   CitasDet: CitaDet[];
+  @OneToMany(() => Citas_Enc, citasEnc => citasEnc.Usuario)
+  Citas_Enc: Citas_Enc[];
 }
