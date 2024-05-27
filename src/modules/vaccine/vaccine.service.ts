@@ -6,6 +6,8 @@ import { Vacunas } from './entities/vaccine.entity';
 import { Repository } from 'typeorm';
 import { ApiResponse } from 'src/utils/ApiResponse';
 import { Vacunas_Det } from './entities/vaccine.det.entity';
+import { AddCastrationDto } from '../pet/dto/add-castration.dto';
+import { Castracion } from '../castration/castration.entity';
 
 @Injectable()
 export class VaccineService {
@@ -13,8 +15,18 @@ export class VaccineService {
   constructor(@InjectRepository(Vacunas) private readonly vacunaRepository: Repository<Vacunas>,
   @InjectRepository(Vacunas_Det) private readonly vacunaDetRepository: Repository<Vacunas_Det>){}
 
-  create(createVaccineDto: CreateVaccineDto) {
-    return 'This action adds a new vaccine';
+  public async create(createVaccineDto: CreateVaccineDto) {
+    const creation = await this.vacunaRepository.create();
+
+    creation.Nombre_Vacuna = createVaccineDto.name;
+    creation.Comentarios = createVaccineDto.comments;
+
+    try{
+      await this.vacunaRepository.save(creation);
+      return new ApiResponse(true, "Vacuna guardada", creation);
+    }catch(err){
+      return new ApiResponse(false, "Error al guardar la vacuna", null);
+    }
   }
 
   public async findAll(): Promise<ApiResponse<Vacunas>>{
@@ -26,7 +38,7 @@ export class VaccineService {
     }
   }
 
-  public async applyToPet(pet: number, vaccine: number, date: Date): Promise<ApiResponse<Vacunas>>{
+  public async applyToPet(pet: number, vaccine: number, date: Date): Promise<ApiResponse<Vacunas_Det>>{
     try{
       const apply = await this.vacunaDetRepository.create();
       apply.Codigo_Mascota = pet;
@@ -34,7 +46,7 @@ export class VaccineService {
       apply.Fecha_Aplicacion = date;
 
       await this.vacunaDetRepository.save(apply);
-      return new ApiResponse(true, "Vacuna aplicada!", null);
+      return new ApiResponse(true, "Vacuna aplicada!", apply);
     }catch(err){
       return new ApiResponse(false, "Error al aplicar la vacuna" + err, null);
     }

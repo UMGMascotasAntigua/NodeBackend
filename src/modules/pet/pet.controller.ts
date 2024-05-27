@@ -7,12 +7,13 @@ import { AuthGuard } from 'src/guards/Auth.guard';
 import { RolesGuard } from 'src/guards/Roles.guard';
 import { Roles } from 'src/utils/rbac/roles.decorator';
 import { Role } from 'src/utils/rbac/role.enum';
-import { createReadStream } from 'fs';
+import { createReadStream, existsSync } from 'fs';
 import { join } from 'path';
 import type { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { VaccineService } from '../vaccine/vaccine.service';
 import { ApplyVaccineDto } from './dto/apply-vaccine.dto';
+import { AddCastrationDto } from './dto/add-castration.dto';
 
 
 @Controller('pet')
@@ -35,39 +36,61 @@ export class PetController {
   }
 
   @Get()
-  findAll() {
-    return this.petService.findAll();
+  @UseGuards(AuthGuard)
+  findAll(@Req() req?:any) {
+    const user = req.user ? req.user.sub : null;
+    return this.petService.findAll(user);
   }
 
   @Get('photo/:id')
   public async getPetPhoto(@Res({passthrough: true}) res: Response, @Param("id") id: string): Promise<StreamableFile>{
     const pet = await this.petService.getPet(id);
+    const savePath = this.configService.getOrThrow("UPLOADS_DIR", "./uploads");
+    var file = null;
     if(!pet){
-      throw new BadRequestException("La imagen buscada está asociada a una mascota inexistente");
+      file = createReadStream(join(savePath, "notfound.jpg"))
+      res.set({
+        'Content-Type': 'image/jpeg',
+        'Content-Disposition': `attachment; filename="notfound.jpg"`
+      })
+      return new StreamableFile(file);
+    }else{
+      if(existsSync(join(savePath, pet.Foto))){
+        file = createReadStream(join(savePath, pet.Foto));
+        res.set({
+          'Content-Type': 'image/jpeg',
+          'Content-Disposition': `attachment; filename="${pet.Foto}"`
+        })
+        return new StreamableFile(file);
+      }else{
+        file = createReadStream(join(savePath, "notfound.jpg"))
+        res.set({
+          'Content-Type': 'image/jpeg',
+          'Content-Disposition': `attachment; filename="notfound.jpg"`
+        })
+        return new StreamableFile(file);
+      }
+      
     }
     // console.log(pet);
-    const savePath = this.configService.getOrThrow("UPLOADS_DIR", "./uploads");
-    const file = createReadStream(join(savePath, pet.Foto));
-
     
-    res.set({
-      'Content-Type': 'image/jpeg',
-      'Content-Disposition': `attachment; filename="${pet.Foto}"`
-    })
-    return new StreamableFile(file);
   }
 
 
   @Patch('favorite')
-  @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.User)
+  @UseGuards(AuthGuard)
   public async addToFavorites(@Body() request: {pet: number}, @Req() req){
     return this.petService.addPetToFavorites(request.pet, req);
   }
 
   @Patch('vaccines/apply')
   public async applyVaccineToPet(@Body() request: ApplyVaccineDto){
-    return this.vaccineService.applyToPet(request.pet, request.vaccine, new Date(request.date));
+    return this.vaccineService.applyToPet(request.pet, request.vaccine, request.date);
+  }
+
+  @Patch('castration/add')
+  public async addCastration(@Body() request: AddCastrationDto){
+    return this.petService.addCastration(request);
   }
 
   @Get('vaccines/:id')

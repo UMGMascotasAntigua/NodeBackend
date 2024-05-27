@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { VaccineService } from './vaccine.service';
 import { CreateVaccineDto } from './dto/create-vaccine.dto';
-import { UpdateVaccineDto } from './dto/update-vaccine.dto';
+import { AuthGuard } from 'src/guards/Auth.guard';
 
+// @UseGuards(AuthGuard)
 @Controller('vaccine')
 export class VaccineController {
   constructor(private readonly vaccineService: VaccineService) {}

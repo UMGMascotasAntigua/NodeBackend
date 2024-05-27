@@ -15,6 +15,8 @@ import { VaccineModule } from './modules/vaccine/vaccine.module';
 import { Favoritos } from './modules/pet/entities/favorite.entity';
 import { Vacunas } from './modules/vaccine/entities/vaccine.entity';
 import { Vacunas_Det } from './modules/vaccine/entities/vaccine.det.entity';
+import { CastrationModule } from './modules/castration/castration.module';
+import { Castracion } from './modules/castration/castration.entity';
 
 @Module({
   imports: [
@@ -47,7 +49,8 @@ import { Vacunas_Det } from './modules/vaccine/entities/vaccine.det.entity';
           Mascotas,
           Favoritos,
           Vacunas,
-          Vacunas_Det
+          Vacunas_Det,
+          Castracion
         ]
       }),
       inject: [ConfigService]
@@ -56,7 +59,8 @@ import { Vacunas_Det } from './modules/vaccine/entities/vaccine.det.entity';
     PetModule,
     AuthModule,
     ProfileModule,
-    VaccineModule
+    VaccineModule,
+    CastrationModule
   ],
 })
 export class AppModule {}

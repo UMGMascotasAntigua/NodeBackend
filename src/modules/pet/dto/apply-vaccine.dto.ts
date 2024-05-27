@@ -8,5 +8,5 @@ export class ApplyVaccineDto{
     vaccine: number;
 
     @IsDateString()
-    date: string;
+    date: Date;
 }

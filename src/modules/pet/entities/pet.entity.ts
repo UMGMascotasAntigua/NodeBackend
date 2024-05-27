@@ -1,12 +1,7 @@
 import { Clasificacion } from 'src/modules/clasification/entities/clasification.entity';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { Favoritos } from './favorite.entity';
-// import { Clasificacion } from './Clasificacion'; // Asegúrate de importar tu entidad Clasificacion
-// import { VacunaDet } from './VacunaDet'; // Asegúrate de importar tu entidad VacunaDet
-// import { Castracion } from './Castracion'; // Asegúrate de importar tu entidad Castracion
-// import { Favorito } from './Favorito'; // Asegúrate de importar tu entidad Favorito
-// import { CitaDet } from './CitaDet'; // Asegúrate de importar tu entidad CitaDet
-
+import { Castracion } from 'src/modules/castration/castration.entity';
 @Entity()
 export class Mascotas {
   @PrimaryGeneratedColumn()
@@ -39,6 +34,9 @@ export class Mascotas {
 
   @OneToMany(() => Favoritos, favoritos => favoritos.Mascota)
   Favoritos: Favoritos[];
+
+  @OneToMany(() => Castracion, castracion => castracion.Mascota)
+  Castraciones: Castracion[];
 
 //   @OneToMany(() => VacunaDet, vacunaDet => vacunaDet.mascota)
 //   VacunasDet: VacunaDet[];

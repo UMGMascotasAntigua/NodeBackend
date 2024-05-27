@@ -17,9 +17,10 @@ import { Favoritos } from './entities/favorite.entity';
 import { Vacunas } from '../vaccine/entities/vaccine.entity';
 import { Vacunas_Det } from '../vaccine/entities/vaccine.det.entity';
 import { VaccineService } from '../vaccine/vaccine.service';
+import { Castracion } from '../castration/castration.entity';
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Mascotas, Perfil, Usuarios, Favoritos, Vacunas, Vacunas_Det]),
+    TypeOrmModule.forFeature([Mascotas, Perfil, Usuarios, Favoritos, Vacunas, Vacunas_Det, Castracion]),
     MulterModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async(cfg: ConfigService) => ({

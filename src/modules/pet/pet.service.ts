@@ -8,13 +8,16 @@ import { ApiResponse } from 'src/utils/ApiResponse';
 import { Usuarios } from '../auth/user.model';
 import { Favoritos } from './entities/favorite.entity';
 import { Vacunas } from '../vaccine/entities/vaccine.entity';
+import { AddCastrationDto } from './dto/add-castration.dto';
+import { Castracion } from '../castration/castration.entity';
 
 @Injectable()
 export class PetService {
 
   constructor(@InjectRepository(Mascotas) private readonly petRepository: Repository<Mascotas>,
   @InjectRepository(Favoritos) private readonly favoriteRepository: Repository<Favoritos>,
-  @InjectRepository(Vacunas) private readonly vaccineRepository: Repository<Vacunas>){}
+  @InjectRepository(Vacunas) private readonly vaccineRepository: Repository<Vacunas>,
+  @InjectRepository(Castracion) private readonly castrationRepository: Repository<Castracion>){}
 
   public async getPet(id: any): Promise<Mascotas>{
     const find = await this.petRepository.findOne({
@@ -44,10 +47,35 @@ export class PetService {
     }
   }
 
-  public async findAll(): Promise<ApiResponse<Mascotas>> {
+  public async findAll(userid: number | null): Promise<ApiResponse<Mascotas>> {
+    var result = null;
     try{
-      const find = await this.petRepository.find();
-      return new ApiResponse(true, "Mascotas obtenidas", find)
+      const find = await this.petRepository.find({
+        relations: ['Favoritos']
+      });
+
+      if(userid){
+        const favs = await this.favoriteRepository.find({
+          where: {
+            Codigo_Usuario: userid
+          }
+        });
+        const favArray = favs.map(fav => fav.Codigo_Mascota);
+
+        result = find.map(mascota => ({
+          ...mascota,
+          isFavorite: favArray.includes(mascota.Codigo_Mascota)
+        }));
+
+        return new ApiResponse(true, "Mascotas obtenidas", result)
+      }else{
+        result = find.map(mascota => ({
+          ...mascota
+        }));
+
+        return new ApiResponse(true, "Mascotas obtenidas", result)
+      }
+      
     }catch(err){
       return new ApiResponse(false, "Error al obtener las mascotas: " + err, null)
     }
@@ -63,7 +91,8 @@ export class PetService {
       });
 
       if(find){
-        return new ApiResponse(false, "La mascota ya fue agregada a favoritos", null)
+        await this.favoriteRepository.delete(find);
+        return new ApiResponse(true, "Mascota removida de favoritos.", find)
       }else{
         const creation = await this.favoriteRepository.create();
         creation.Codigo_Mascota = pet;
@@ -74,6 +103,21 @@ export class PetService {
     }catch(err){
       return new ApiResponse(false, "Error al agregar a favoritos" + err, null)
     }
+  }
+
+  public async addCastration(request: AddCastrationDto) : Promise<ApiResponse<any>>{
+    try{
+      const creation = await this.castrationRepository.create();
+      creation.Codigo_Mascota = request.pet;
+      creation.Comentarios = request.comments;
+      creation.Fecha_Castracion = request.date;
+
+      await this.castrationRepository.save(creation);
+      return new ApiResponse(true, "Castración agregada", creation);
+    }catch(err){
+      return new ApiResponse(false, "Error al agregar la castración.", null);
+    }
+    
   }
 
   public async getPetVaccines(){
