@@ -7,6 +7,6 @@ export class AddCastrationDto{
     @IsString()
     comments: string;
 
-    @IsDate()
+    @IsDateString()
     date: Date;
 }
