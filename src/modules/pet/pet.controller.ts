@@ -16,6 +16,7 @@ import { ApplyVaccineDto } from './dto/apply-vaccine.dto';
 import { AddCastrationDto } from './dto/add-castration.dto';
 import { AdoptPetDto } from './dto/adopt-pet.dto';
 import { FilterDto, FiltersDto } from './dto/find-filters.dto';
+import { DeleteCastrationDto } from './dto/delete-castration.dto';
 
 
 @Controller('pet')
@@ -35,6 +36,21 @@ export class PetController {
     ]
   })) file: Express.Multer.File) {
     return this.petService.create(createPetDto, file);
+  }
+
+  @Patch(':id')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Administrator)
+  @UseInterceptors(FileInterceptor('file'))
+  update(@Param("id") id: string, @Body() request: CreatePetDto){
+    return this.petService.updatePet(Number(id), request);
+  }
+
+  @Delete(':id')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Administrator)
+  public async deletePet(@Param("id") id: number){
+    return this.petService.deletePet(id);
   }
 
   @Get()
@@ -82,14 +98,34 @@ export class PetController {
     return this.petService.addPetToFavorites(request.pet, req);
   }
 
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Administrator)
   @Patch('vaccines/apply')
   public async applyVaccineToPet(@Body() request: ApplyVaccineDto){
     return this.vaccineService.applyToPet(request.pet, request.vaccine, request.date);
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Administrator)
+  @Delete('vaccines/delete')
+  public async deletePetVaccine(@Body() request: {mvd: number}){
+    return this.vaccineService.deletePetVaccine(request.mvd);
+  }
+
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Administrator)
   @Patch('castration/add')
   public async addCastration(@Body() request: AddCastrationDto){
     return this.petService.addCastration(request);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Administrator)
+  @Delete('castration/delete')
+  public async deleteCastration(@Body() request: DeleteCastrationDto){
+    return this.petService.deleteCastration(request);
   }
 
   @Post('adopt')

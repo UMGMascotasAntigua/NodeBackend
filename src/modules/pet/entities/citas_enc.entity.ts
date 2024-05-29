@@ -39,4 +39,5 @@ export class Citas_Enc{
     @JoinColumn({name: "Codigo_Usuario"})
     Usuario: Usuarios;
 
+
 }

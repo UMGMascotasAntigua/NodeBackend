@@ -6,13 +6,7 @@ import { Mascotas } from "src/modules/pet/entities/pet.entity";
 export class Vacunas_Det{
     @PrimaryGeneratedColumn()
     Codigo_Mvd: number;
-
-    @Column()
-    Codigo_Mascota: number;
-
-    @Column()
-    Codigo_Vacuna: number;
-
+    
     @Column({type: 'date'})
     Fecha_Aplicacion: Date;
 

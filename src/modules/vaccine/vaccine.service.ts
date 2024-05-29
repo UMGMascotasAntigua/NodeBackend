@@ -6,14 +6,14 @@ import { Vacunas } from './entities/vaccine.entity';
 import { Repository } from 'typeorm';
 import { ApiResponse } from 'src/utils/ApiResponse';
 import { Vacunas_Det } from './entities/vaccine.det.entity';
-import { AddCastrationDto } from '../pet/dto/add-castration.dto';
-import { Castracion } from '../castration/castration.entity';
+import { Mascotas } from '../pet/entities/pet.entity';
 
 @Injectable()
 export class VaccineService {
 
   constructor(@InjectRepository(Vacunas) private readonly vacunaRepository: Repository<Vacunas>,
-  @InjectRepository(Vacunas_Det) private readonly vacunaDetRepository: Repository<Vacunas_Det>){}
+  @InjectRepository(Vacunas_Det) private readonly vacunaDetRepository: Repository<Vacunas_Det>,
+  @InjectRepository(Mascotas) private readonly petRepository: Repository<Mascotas>){}
 
   public async create(createVaccineDto: CreateVaccineDto) {
     const creation = await this.vacunaRepository.create();
@@ -38,11 +38,38 @@ export class VaccineService {
     }
   }
 
+  public async deletePetVaccine(mvd: number): Promise<ApiResponse<any>>{
+    try{
+      const find = await this.vacunaDetRepository.findOne({
+        where: {
+          Codigo_Mvd:mvd
+        }
+      });
+
+      if(find){
+        await this.vacunaDetRepository.delete(find);
+        return new ApiResponse(true, "Vacuna eliminada", {});
+      }else{
+        return new ApiResponse(false, "La vacuna no existe", {});
+      }
+    }catch(err){
+      return new ApiResponse(false, "Error al eliminar la vacuna: " + err, null);
+    }
+  }
+
   public async applyToPet(pet: number, vaccine: number, date: Date): Promise<ApiResponse<Vacunas_Det>>{
     try{
       const apply = await this.vacunaDetRepository.create();
-      apply.Codigo_Mascota = pet;
-      apply.Codigo_Vacuna = vaccine;
+      apply.Mascota = await this.petRepository.findOne({
+        where: {
+          Codigo_Mascota: pet
+        }
+      });
+      apply.Vacuna = await this.vacunaRepository.findOne({
+        where: {
+          Codigo_Vacuna: vaccine
+        }
+      });
       apply.Fecha_Aplicacion = date;
 
       await this.vacunaDetRepository.save(apply);

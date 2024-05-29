@@ -12,6 +12,7 @@ import { AddCastrationDto } from './dto/add-castration.dto';
 import { Castracion } from '../castration/castration.entity';
 import { FiltersDto } from './dto/find-filters.dto';
 import { Clasificacion } from '../clasification/entities/clasification.entity';
+import { DeleteCastrationDto } from './dto/delete-castration.dto';
 
 @Injectable()
 export class PetService {
@@ -30,6 +31,56 @@ export class PetService {
     });
 
     return await find;
+  }
+
+  public async updatePet(id: number, update: CreatePetDto): Promise<ApiResponse<Mascotas>>{
+    try{
+      const find = await this.petRepository.findOne({
+        where: {
+          Codigo_Mascota: Number(id)
+        }
+      });
+
+      if(find){
+        // Object.assign(find, update);
+        find.Edad = update.age;
+        find.Nombre_Mascota = update.name;
+        find.Raza = update.race;
+        find.Informacion = update.information;
+        find.Comentarios = update.comments;
+        find.Clasificacion = await this.clasificationRepository.findOne({
+          where: {
+            Codigo_Clasificacion: Number(update.clasification)
+          }
+        });
+        
+        await this.petRepository.save(find);
+        return new ApiResponse(true, "Mascota actualizada con éxito", find);
+      }else{
+        return new ApiResponse(false, "La mascota no existe", null);
+      }
+    }catch(err){
+      return new ApiResponse(false, "Error al actualizar la mascota: " + err, null);
+    }
+  }
+
+  public async deletePet(id: number): Promise<ApiResponse<Mascotas>>{
+    try{
+      const find = await this.petRepository.findOne({
+        where: {
+          Codigo_Mascota: id
+        }
+      });
+
+      if(find){
+        await this.petRepository.delete(find);
+        return new ApiResponse(true, "Mascota eliminada con éxito", null);
+      }else{
+        return new ApiResponse(false, "La mascota no existe", null);
+      }
+    }catch(err){
+      return new ApiResponse(false, `Error al eliminar la mascota: Verifique relaciones`, null);
+    }
   }
 
   public async create(createPetDto: CreatePetDto, file: Express.Multer.File): Promise<ApiResponse<Mascotas>> {
@@ -58,9 +109,13 @@ export class PetService {
   public async findAll(userid: number | null): Promise<ApiResponse<Mascotas>> {
     var result = null;
     try{
-      const find = await this.petRepository.find({
-        relations: ['Favoritos']
-      });
+      const find = await this.petRepository.createQueryBuilder('mascota')
+      .leftJoinAndSelect('mascota.Clasificacion', 'clasificacion')
+      .leftJoinAndSelect('mascota.Favoritos', 'favoritos')
+      .leftJoinAndSelect('mascota.Castraciones', 'castraciones')
+      .leftJoinAndSelect('mascota.Vacunas_Det', 'vacunasDet')
+      .leftJoinAndSelect('vacunasDet.Vacuna', 'vacuna')
+      .getMany();
 
       if(userid){
         const favs = await this.favoriteRepository.find({
@@ -126,6 +181,26 @@ export class PetService {
       return new ApiResponse(false, "Error al agregar la castración.", null);
     }
     
+  }
+
+  public async deleteCastration(request: DeleteCastrationDto){
+    try{
+      const find = await this.castrationRepository.findOne({
+        where: {
+          Codigo_Castracion: request.Codigo_Castracion,
+          Codigo_Mascota: request.Codigo_Mascota
+        }
+      });
+
+      if(find){
+        await this.castrationRepository.delete(find);
+        return new ApiResponse(true, "Castración eliminada", {});
+      }else{
+        return new ApiResponse(false, "La castración no existe", {});
+      }
+    }catch(err){
+      return new ApiResponse(true, "Error al eliminar la castración: " + err, {});
+    }
   }
 
   public async getPetVaccines(){
