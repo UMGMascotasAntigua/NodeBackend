@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, ParseFilePipe, ParseFilePipeBuilder, HttpStatus, UseGuards, FileTypeValidator, Res, StreamableFile, BadRequestException, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, ParseFilePipe, ParseFilePipeBuilder, HttpStatus, UseGuards, FileTypeValidator, Res, StreamableFile, BadRequestException, Req, Put } from '@nestjs/common';
 import { PetService } from './pet.service';
 import { CreatePetDto } from './dto/create-pet.dto';
 import { UpdatePetDto } from './dto/update-pet.dto';
@@ -92,7 +92,7 @@ export class PetController {
   }
 
 
-  @Post('favorite')
+  @Put('favorite')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.User)
   public async addToFavorites(@Body() request: {pet: number}, @Req() req){
@@ -129,7 +129,7 @@ export class PetController {
     return this.petService.deleteCastration(request);
   }
 
-  @Post('filter')
+  @Put('filter')
   public async findWithFilters(@Body() filters: FiltersDto){
     return await this.petService.findWithFilters(filters);
   }

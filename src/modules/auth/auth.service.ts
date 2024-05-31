@@ -1,11 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ApiResponse } from 'src/utils/ApiResponse';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Usuarios } from './user.model';
-import { Equal, Or, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';

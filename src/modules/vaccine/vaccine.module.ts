@@ -4,12 +4,15 @@ import { VaccineController } from './vaccine.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Vacunas } from './entities/vaccine.entity';
 import { Vacunas_Det } from './entities/vaccine.det.entity';
-import { JwtService } from '@nestjs/jwt';
 import { Mascotas } from '../pet/entities/pet.entity';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Vacunas, Vacunas_Det, Mascotas])],
+  imports: [
+    TypeOrmModule.forFeature([Vacunas, Vacunas_Det, Mascotas]),
+    JwtModule
+  ],
   controllers: [VaccineController],
-  providers: [VaccineService, JwtService],
+  providers: [VaccineService],
 })
 export class VaccineModule {}

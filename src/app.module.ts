@@ -21,6 +21,10 @@ import { Citas_Enc } from './modules/pet/entities/citas_enc.entity';
 import { Citas_Det } from './modules/pet/entities/citas_det.entity';
 import { AnnouncesModule } from './modules/announces/announces.module';
 import { Announce } from './modules/announces/announce.entity';
+import { JwtModule } from '@nestjs/jwt';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './guards/Roles.guard';
+import { AuthService } from './modules/auth/auth.service';
 
 @Module({
   imports: [
@@ -67,6 +71,17 @@ import { Announce } from './modules/announces/announce.entity';
       }),
       inject: [ConfigService]
     }),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async(cfg: ConfigService) => ({
+        global: true,
+        secret: cfg.getOrThrow<string>('JWT_SECRET', "admin123"),
+        signOptions: {
+          expiresIn: cfg.get<string>('JWT_EXPIRES') ?? "3h"
+        }
+      }),
+      inject: [ConfigService]
+    }),
     ClasificationModule,
     PetModule,
     AuthModule,
@@ -75,5 +90,7 @@ import { Announce } from './modules/announces/announce.entity';
     CastrationModule,
     AnnouncesModule
   ],
+  providers: [
+  ]
 })
 export class AppModule {}
