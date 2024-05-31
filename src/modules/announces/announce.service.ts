@@ -11,6 +11,16 @@ export class AnnounceService{
 
     }
 
+    public async getOne(id: string): Promise<Announce>{
+        const find = await this.announceRepo.findOne({
+            where: {
+                Codigo_Anuncio: Number(id)
+            }
+        });
+
+        return await find;
+    }
+
     public async getAll() : Promise<ApiResponse<Announce>>{
         try{
             const find = await this.announceRepo.find();
