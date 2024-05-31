@@ -141,4 +141,11 @@ export class PetController {
     return await this.petService.adoptPet(request);
   }
 
+  // @UseGuards(AuthGuard)
+  // @Roles(Role.User)
+  // @Put('adoption/pdf')
+  // public async generatePdf(@Body() request: {cita: number}, @Req() req:any){
+  //   return await this.petService.generatePdf(request.cita, req.user.sub)
+  // }
+
 }

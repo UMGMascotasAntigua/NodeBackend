@@ -148,6 +148,22 @@ export class PetService {
     }
   }
 
+  public async generatePdf(cita: number, usuario: number) : Promise<ApiResponse<any>>{
+    try{
+      const citas = await this.citasEncRepo.createQueryBuilder('citas')
+      .innerJoin('citas.Citas_Det', 'citas_det')
+      .innerJoin('citas.Mascotas', 'mascotas')
+      .where('citas.Codigo_Usuario = :usuario', {usuario: usuario})
+      .andWhere("citas.Id_Cita = :cita", {cita: cita})
+      .getMany();
+
+      return new ApiResponse(false, "Error al generar el pdf", citas);
+    }catch(err){
+      console.log(err)
+      return new ApiResponse(false, "Error al generar el pdf", null);
+    }
+  }
+
   public async findAll(userid: number | null): Promise<ApiResponse<Mascotas>> {
     var result = null;
     try {
