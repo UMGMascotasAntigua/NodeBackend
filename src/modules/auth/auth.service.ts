@@ -20,6 +20,16 @@ export class AuthService {
     private jwtService: JwtService){}
 
 
+    public async getInfoUser(user: any){
+      const find = await this.userRepository.findOne({
+        where: {
+          Codigo_Usuario: Number(user)
+        }
+      });
+
+      return new ApiResponse(true, "Información obtenida", find);
+    }
+
     public async getProfileUser(user: any){
       const query = await this.userRepository.createQueryBuilder('usuario')
       .select(["usuario.Usuario", "perfil.Descripcion"])

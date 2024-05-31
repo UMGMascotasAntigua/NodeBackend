@@ -134,4 +134,11 @@ export class PetController {
     return await this.petService.findWithFilters(filters);
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.User)
+  @Put('adopt')
+  public async adoptPet(@Body() request: AdoptPetDto){
+    return await this.petService.adoptPet(request);
+  }
+
 }

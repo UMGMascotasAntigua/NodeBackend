@@ -13,17 +13,59 @@ import { Castracion } from '../castration/castration.entity';
 import { FiltersDto } from './dto/find-filters.dto';
 import { Clasificacion } from '../clasification/entities/clasification.entity';
 import { DeleteCastrationDto } from './dto/delete-castration.dto';
+import { Citas_Enc } from './entities/citas_enc.entity';
+import { Citas_Det } from './entities/citas_det.entity';
+import { AdoptPetDto } from './dto/adopt-pet.dto';
 
 @Injectable()
 export class PetService {
 
   constructor(@InjectRepository(Mascotas) private readonly petRepository: Repository<Mascotas>,
-  @InjectRepository(Favoritos) private readonly favoriteRepository: Repository<Favoritos>,
-  @InjectRepository(Vacunas) private readonly vaccineRepository: Repository<Vacunas>,
-  @InjectRepository(Castracion) private readonly castrationRepository: Repository<Castracion>,
-  @InjectRepository(Clasificacion) private readonly clasificationRepository: Repository<Clasificacion>){}
+    @InjectRepository(Favoritos) private readonly favoriteRepository: Repository<Favoritos>,
+    @InjectRepository(Vacunas) private readonly vaccineRepository: Repository<Vacunas>,
+    @InjectRepository(Castracion) private readonly castrationRepository: Repository<Castracion>,
+    @InjectRepository(Clasificacion) private readonly clasificationRepository: Repository<Clasificacion>,
+    @InjectRepository(Citas_Enc) private readonly citasEncRepo: Repository<Citas_Enc>,
+    @InjectRepository(Citas_Det) private readonly citasDet: Repository<Citas_Det>) { }
 
-  public async getPet(id: any): Promise<Mascotas>{
+  public async adoptPet(request: AdoptPetDto) {
+    try {
+
+      const creation = await this.citasEncRepo.create();
+      creation.Codigo_Usuario = request.User.Codigo_Usuario;
+      creation.Nombre_Usuario = request.User.Nombre_Usuario;
+      creation.Usuario = request.User;
+      creation.Direccion = request.Address;
+      creation.Telefono = request.Phone;
+      creation.Fecha = new Date();
+      creation.Fecha_Recoleccion = request.Date_Recolection;
+      creation.Comentarios = request.Comments;
+      creation.Estado = "Confirmada";
+      await this.citasEncRepo.save(creation);
+
+      const detCreation = await this.citasDet.create();
+      detCreation.Cita = creation;
+      detCreation.Codigo_Mascota = request.Pet.Codigo_Mascota;
+      detCreation.Nombre_Mascota = request.Pet.Nombre_Mascota;
+      detCreation.Id_Cita = creation.Id_Cita;
+      await this.citasDet.save(detCreation);
+
+      const petFind = await this.petRepository.findOne({
+        where: {
+          Codigo_Mascota: request.Pet.Codigo_Mascota
+        }
+      });
+      petFind.Estado = "Adoptado";
+      await this.petRepository.save(petFind);
+
+      return new ApiResponse(true, "Adopción completada", creation);      
+    } catch (err) {
+      return new ApiResponse(false, "No se pudo completar la adopción: " + err, null);   
+    }
+  }
+
+
+  public async getPet(id: any): Promise<Mascotas> {
     const find = await this.petRepository.findOne({
       where: {
         Codigo_Mascota: id
@@ -33,15 +75,15 @@ export class PetService {
     return await find;
   }
 
-  public async updatePet(id: number, update: CreatePetDto): Promise<ApiResponse<Mascotas>>{
-    try{
+  public async updatePet(id: number, update: CreatePetDto): Promise<ApiResponse<Mascotas>> {
+    try {
       const find = await this.petRepository.findOne({
         where: {
           Codigo_Mascota: Number(id)
         }
       });
 
-      if(find){
+      if (find) {
         // Object.assign(find, update);
         find.Edad = update.age;
         find.Nombre_Mascota = update.name;
@@ -53,38 +95,38 @@ export class PetService {
             Codigo_Clasificacion: Number(update.clasification)
           }
         });
-        
+
         await this.petRepository.save(find);
         return new ApiResponse(true, "Mascota actualizada con éxito", find);
-      }else{
+      } else {
         return new ApiResponse(false, "La mascota no existe", null);
       }
-    }catch(err){
+    } catch (err) {
       return new ApiResponse(false, "Error al actualizar la mascota: " + err, null);
     }
   }
 
-  public async deletePet(id: number): Promise<ApiResponse<Mascotas>>{
-    try{
+  public async deletePet(id: number): Promise<ApiResponse<Mascotas>> {
+    try {
       const find = await this.petRepository.findOne({
         where: {
           Codigo_Mascota: id
         }
       });
 
-      if(find){
+      if (find) {
         await this.petRepository.delete(find);
         return new ApiResponse(true, "Mascota eliminada con éxito", null);
-      }else{
+      } else {
         return new ApiResponse(false, "La mascota no existe", null);
       }
-    }catch(err){
+    } catch (err) {
       return new ApiResponse(false, `Error al eliminar la mascota: Verifique relaciones`, null);
     }
   }
 
   public async create(createPetDto: CreatePetDto, file: Express.Multer.File): Promise<ApiResponse<Mascotas>> {
-    try{
+    try {
       const creation = await this.petRepository.create();
       creation.Nombre_Mascota = createPetDto.name;
       creation.Raza = createPetDto.race;
@@ -98,26 +140,27 @@ export class PetService {
           Codigo_Clasificacion: Number(createPetDto.clasification)
         }
       }) ?? null;
-    
+
       await this.petRepository.save(creation);
       return new ApiResponse(true, "Mascota agregada!", creation);
-    }catch(err){
+    } catch (err) {
       return new ApiResponse(false, "Error al agregar la mascota " + err, null);
     }
   }
 
   public async findAll(userid: number | null): Promise<ApiResponse<Mascotas>> {
     var result = null;
-    try{
+    try {
       const find = await this.petRepository.createQueryBuilder('mascota')
-      .leftJoinAndSelect('mascota.Clasificacion', 'clasificacion')
-      .leftJoinAndSelect('mascota.Favoritos', 'favoritos')
-      .leftJoinAndSelect('mascota.Castraciones', 'castraciones')
-      .leftJoinAndSelect('mascota.Vacunas_Det', 'vacunasDet')
-      .leftJoinAndSelect('vacunasDet.Vacuna', 'vacuna')
-      .getMany();
+        .leftJoinAndSelect('mascota.Clasificacion', 'clasificacion')
+        .leftJoinAndSelect('mascota.Favoritos', 'favoritos')
+        .leftJoinAndSelect('mascota.Castraciones', 'castraciones')
+        .leftJoinAndSelect('mascota.Vacunas_Det', 'vacunasDet')
+        .leftJoinAndSelect('vacunasDet.Vacuna', 'vacuna')
+        .where('mascota.Estado = :estado', { estado: 'Disponible' })
+        .getMany();
 
-      if(userid){
+      if (userid) {
         const favs = await this.favoriteRepository.find({
           where: {
             Codigo_Usuario: userid
@@ -131,44 +174,44 @@ export class PetService {
         }));
 
         return new ApiResponse(true, "Mascotas obtenidas", result)
-      }else{
+      } else {
         result = find.map(mascota => ({
           ...mascota
         }));
 
         return new ApiResponse(true, "Mascotas obtenidas", result)
       }
-      
-    }catch(err){
+
+    } catch (err) {
       return new ApiResponse(false, "Error al obtener las mascotas: " + err, null)
     }
   }
 
-  public async addPetToFavorites(pet: number, req): Promise<ApiResponse<Favoritos>>{
-    try{
+  public async addPetToFavorites(pet: number, req): Promise<ApiResponse<Favoritos>> {
+    try {
       const find = await this.favoriteRepository.findOne({
         where: {
           Codigo_Mascota: pet,
           Codigo_Usuario: req.sub
         }
       });
-      if(find){
+      if (find) {
         await this.favoriteRepository.remove(find);
         return new ApiResponse(true, "Mascota removida de favoritos.", find)
-      }else{
+      } else {
         const creation = await this.favoriteRepository.create();
         creation.Codigo_Mascota = pet;
         creation.Codigo_Usuario = req['user'].sub
         await this.favoriteRepository.save(creation);
         return new ApiResponse(true, "Mascota agregada a favoritos.", find)
       }
-    }catch(err){
+    } catch (err) {
       return new ApiResponse(false, "Error al agregar a favoritos" + err, null)
     }
   }
 
-  public async addCastration(request: AddCastrationDto) : Promise<ApiResponse<any>>{
-    try{
+  public async addCastration(request: AddCastrationDto): Promise<ApiResponse<any>> {
+    try {
       const creation = await this.castrationRepository.create();
       creation.Codigo_Mascota = request.pet;
       creation.Comentarios = request.comments;
@@ -176,14 +219,14 @@ export class PetService {
 
       await this.castrationRepository.save(creation);
       return new ApiResponse(true, "Castración agregada", creation);
-    }catch(err){
+    } catch (err) {
       return new ApiResponse(false, "Error al agregar la castración.", null);
     }
-    
+
   }
 
-  public async deleteCastration(request: DeleteCastrationDto){
-    try{
+  public async deleteCastration(request: DeleteCastrationDto) {
+    try {
       const find = await this.castrationRepository.findOne({
         where: {
           Codigo_Castracion: request.Codigo_Castracion,
@@ -191,61 +234,61 @@ export class PetService {
         }
       });
 
-      if(find){
+      if (find) {
         await this.castrationRepository.delete(find);
         return new ApiResponse(true, "Castración eliminada", {});
-      }else{
+      } else {
         return new ApiResponse(false, "La castración no existe", {});
       }
-    }catch(err){
+    } catch (err) {
       return new ApiResponse(true, "Error al eliminar la castración: " + err, {});
     }
   }
 
-  public async getPetVaccines(){
-    try{
+  public async getPetVaccines() {
+    try {
       // const find = await this.vaccineRepository.find({
       //   where: {
 
       //   }
       // })
-    }catch(err){
+    } catch (err) {
       return new ApiResponse(false, "Error al obtener las vacunas de la mascota" + err, null)
     }
   }
 
-  public async findWithFilters(request: FiltersDto){
-    try{
+  public async findWithFilters(request: FiltersDto) {
+    try {
       const queryBuilder = await this.petRepository.createQueryBuilder('mascota');
 
       let paramIndex = 0;
-    request.filters.forEach(filter => {
-      var {field, operator, value} = filter;
-      field = field.toUpperCase();
+      request.filters.forEach(filter => {
+        var { field, operator, value } = filter;
+        field = field.toUpperCase();
 
-      const parameterName = `${field.toLowerCase()}${paramIndex++}`;
+        const parameterName = `${field.toLowerCase()}${paramIndex++}`;
 
-      if (field === 'EDAD') {
-        if (operator && value) {
+        if (field === 'EDAD') {
+          if (operator && value) {
             queryBuilder.andWhere(`mascota.${field} ${operator} :${parameterName}`, { [parameterName]: Number(value) });
-        } else {
+          } else {
             queryBuilder.andWhere(`mascota.${field} = :${parameterName}`, { [parameterName]: Number(value) });
+          }
+        } else if (field === 'ESTADO') {
+          queryBuilder.andWhere(`mascota.${field} = :${parameterName}`, { [parameterName]: value });
+        } else if (field === 'RAZA') {
+          value = value.trim();
+          queryBuilder.andWhere(`mascota.${field} LIKE :${parameterName}`, { [parameterName]: `%${value.toLowerCase()}%` });
+        } else if (field === 'CLASIFICACION') {
+          queryBuilder.innerJoin('mascota.Clasificacion', 'clasificacion');
+          queryBuilder.andWhere(`clasificacion.Descripcion LIKE :${parameterName}`, { [parameterName]: `%${value.toLowerCase()}%` });
         }
-    } else if (field === 'ESTADO') {
-        queryBuilder.andWhere(`mascota.${field} = :${parameterName}`, { [parameterName]: value });
-    } else if (field === 'RAZA') {
-        value = value.trim();
-        queryBuilder.andWhere(`mascota.${field} LIKE :${parameterName}`, { [parameterName]: `%${value.toLowerCase()}%` });
-    } else if (field === 'CLASIFICACION') {
-        queryBuilder.innerJoin('mascota.Clasificacion', 'clasificacion');
-        queryBuilder.andWhere(`clasificacion.Descripcion LIKE :${parameterName}`, { [parameterName]: `%${value.toLowerCase()}%` });
-    }
-    })
-    const result =  await queryBuilder.getMany();
-    // console.log(queryBuilder.getSql())
-    // console.log(queryBuilder.getQueryAndParameters());
-    return new ApiResponse(true, "Mascotas filtradas", result);
-    }catch(err){
+      })
+      const result = await queryBuilder.getMany();
+      // console.log(queryBuilder.getSql())
+      // console.log(queryBuilder.getQueryAndParameters());
+      return new ApiResponse(true, "Mascotas filtradas", result);
+    } catch (err) {
       console.log(err);
       return new ApiResponse(false, "Error al filtrar las mascotas", null)
     }

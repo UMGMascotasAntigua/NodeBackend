@@ -19,6 +19,11 @@ export class AuthController {
     return await this.authService.getProfileUser(req.user)
   }
 
+  @Get('info')
+  @UseGuards(AuthGuard)
+  public async getUserInfo(@Req() req:any){
+    return await this.authService.getInfoUser(req.user.sub);
+  }
 
   @Post('login')
   public Login(@Body() request: LoginDto){

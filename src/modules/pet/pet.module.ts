@@ -26,7 +26,8 @@ import { RolesGuard } from 'src/guards/Roles.guard';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Mascotas, Perfil, Usuarios, Favoritos, Vacunas, Clasificacion, Vacunas_Det, Castracion, Citas_Enc, Citas_Det]),
+    TypeOrmModule.forFeature([Mascotas, Perfil, Usuarios, Favoritos, Vacunas, 
+      Clasificacion, Vacunas_Det, Castracion, Citas_Enc, Citas_Det]),
     MulterModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async(cfg: ConfigService) => ({
