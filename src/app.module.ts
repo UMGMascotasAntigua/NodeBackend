@@ -19,6 +19,8 @@ import { CastrationModule } from './modules/castration/castration.module';
 import { Castracion } from './modules/castration/castration.entity';
 import { Citas_Enc } from './modules/pet/entities/citas_enc.entity';
 import { Citas_Det } from './modules/pet/entities/citas_det.entity';
+import { AnnouncesModule } from './modules/announces/announces.module';
+import { Announce } from './modules/announces/announce.entity';
 
 @Module({
   imports: [
@@ -59,7 +61,8 @@ import { Citas_Det } from './modules/pet/entities/citas_det.entity';
           Vacunas_Det,
           Castracion,
           Citas_Enc,
-          Citas_Det
+          Citas_Det,
+          Announce
         ]
       }),
       inject: [ConfigService]
@@ -69,7 +72,8 @@ import { Citas_Det } from './modules/pet/entities/citas_det.entity';
     AuthModule,
     ProfileModule,
     VaccineModule,
-    CastrationModule
+    CastrationModule,
+    AnnouncesModule
   ],
 })
 export class AppModule {}

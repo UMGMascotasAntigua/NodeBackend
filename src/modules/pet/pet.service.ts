@@ -152,14 +152,13 @@ export class PetService {
           Codigo_Usuario: req.sub
         }
       });
-
       if(find){
-        await this.favoriteRepository.delete(find);
+        await this.favoriteRepository.remove(find);
         return new ApiResponse(true, "Mascota removida de favoritos.", find)
       }else{
         const creation = await this.favoriteRepository.create();
         creation.Codigo_Mascota = pet;
-        creation.Codigo_Usuario = req.user.sub
+        creation.Codigo_Usuario = req['user'].sub
         await this.favoriteRepository.save(creation);
         return new ApiResponse(true, "Mascota agregada a favoritos.", find)
       }

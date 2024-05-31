@@ -38,7 +38,7 @@ export class PetController {
     return this.petService.create(createPetDto, file);
   }
 
-  @Patch(':id')
+  @Post(':id')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.Administrator)
   @UseInterceptors(FileInterceptor('file'))
@@ -92,8 +92,9 @@ export class PetController {
   }
 
 
-  @Patch('favorite')
-  @UseGuards(AuthGuard)
+  @Post('favorite')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.User)
   public async addToFavorites(@Body() request: {pet: number}, @Req() req){
     return this.petService.addPetToFavorites(request.pet, req);
   }
@@ -101,7 +102,7 @@ export class PetController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.Administrator)
-  @Patch('vaccines/apply')
+  @Post('vaccines/apply')
   public async applyVaccineToPet(@Body() request: ApplyVaccineDto){
     return this.vaccineService.applyToPet(request.pet, request.vaccine, request.date);
   }
@@ -116,7 +117,7 @@ export class PetController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.Administrator)
-  @Patch('castration/add')
+  @Post('castration/add')
   public async addCastration(@Body() request: AddCastrationDto){
     return this.petService.addCastration(request);
   }
@@ -128,19 +129,9 @@ export class PetController {
     return this.petService.deleteCastration(request);
   }
 
-  @Post('adopt')
-  public async adoptPet(@Body() request: AdoptPetDto){
-    
-  }
-
   @Post('filter')
   public async findWithFilters(@Body() filters: FiltersDto){
     return await this.petService.findWithFilters(filters);
-  }
-
-  @Get('vaccines/:id')
-  public async getPetVaccines(@Param("id") id: number){
-    return this.vaccineService.getPetVaccines(id);
   }
 
 }
